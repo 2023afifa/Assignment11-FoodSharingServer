@@ -25,7 +25,21 @@ async function run() {
 
         await client.connect();
 
-        const userCollection = client.db("brandsDB").collection("user");
+        const foodCollection = client.db("foodsDB").collection("allfood");
+        const userCollection = client.db("foodsDB").collection("user");
+
+        app.get("/allfood", async (req, res) => {
+            const cursor = foodCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.post("/allfood", async (req, res) => {
+            const newFood = req.body;
+            console.log(newFood);
+            const result = await foodCollection.insertOne(newFood);
+            res.send(result);
+        })
 
         app.get("/user", async (req, res) => {
             const cursor = userCollection.find();
