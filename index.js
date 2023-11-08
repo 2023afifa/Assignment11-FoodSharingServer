@@ -96,6 +96,20 @@ async function run() {
             res.send(result);
         })
 
+        app.patch("/request/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updateStatus = req.body;
+            console.log(updateStatus);
+            const updateDoc = {
+                $set: {
+                    status: updateStatus.status
+                },
+            };
+            const result = await requestCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+
         app.get("/user", async (req, res) => {
             const cursor = userCollection.find();
             const users = await cursor.toArray();
