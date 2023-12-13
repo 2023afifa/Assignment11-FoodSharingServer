@@ -8,12 +8,12 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 
-app.use(cors({
-    origin: [ "https://foodsharing-d0b61.web.app/", "http://localhost:5173"],
-    credentials: true
-}));
-app.use(express.json());
-app.use(cookieParser());
+// app.use(cors({
+//     origin: ["https://foodsharing-d0b61.web.app/", "http://localhost:5173"],
+//     credentials: true
+// }));
+// app.use(express.json());
+// app.use(cookieParser());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.etbjr0z.mongodb.net/?retryWrites=true&w=majority`;
@@ -57,20 +57,21 @@ async function run() {
         const foodCollection = client.db("foodsDB").collection("allfood");
         const userCollection = client.db("foodsDB").collection("user");
         const requestCollection = client.db("foodsDB").collection("request");
+        const noteCollection = client.db("foodsDB").collection("note");
 
 
-        app.post("/jwt", logger, async (req, res) => {
-            const user = req.body;
-            console.log(user);
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
-            res
-                .cookie("token", token, {
-                    httpOnly: true,
-                    secure: true,  //https://foodsharing-d0b61.web.app/
-                    // sameSite: "none"
-                })
-                .send({ success: true });
-        })
+        // app.post("/jwt", logger, async (req, res) => {
+        //     const user = req.body;
+        //     console.log(user);
+        //     const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+        //     res
+        //         .cookie("token", token, {
+        //             httpOnly: true,
+        //             secure: true,  //https://foodsharing-d0b61.web.app/
+        //             // sameSite: "none"
+        //         })
+        //         .send({ success: true });
+        // })
 
         app.get("/allfood", async (req, res) => {
             const cursor = foodCollection.find();
@@ -157,6 +158,19 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await requestCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        app.get("/note", async (req, res) => {
+            const cursor = noteCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.post("/note", async (req, res) => {
+            const newNote = req.body;
+            console.log(newNote);
+            const result = await noteCollection.insertOne(newNote);
             res.send(result);
         })
 
